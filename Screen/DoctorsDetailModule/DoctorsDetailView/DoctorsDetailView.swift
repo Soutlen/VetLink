@@ -1,9 +1,6 @@
 import UIKit
 
-/// Протокол для передачи данных от Presenter к View
 protocol IDoctorsDetailView: AnyObject {
-    /// Отобразить детальную информацию о докторе
-    /// - Parameter viewModel: DoctorsDetailEntity с данными доктора для отображения
     func display(viewModel: DoctorsDetailEntity)
 }
 
@@ -64,19 +61,15 @@ final class DoctorsDetailView: UIView {
     
     private let descriptionContainerView: UIView = {
         let view = UIView()
-        view.backgroundColor = .white
+        view.backgroundColor = .systemBackground
         view.layer.cornerRadius = 12
-        view.layer.shadowColor = UIColor.black.cgColor
-        view.layer.shadowOffset = CGSize(width: 0, height: 2)
-        view.layer.shadowRadius = 4
-        view.layer.shadowOpacity = 0.1
         return view
     }()
     
     private let descriptionLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 16, weight: .regular)
-        label.textColor = .black
+        label.textColor = .label
         label.numberOfLines = 0
         return label
     }()
@@ -84,7 +77,7 @@ final class DoctorsDetailView: UIView {
     
     private let actionView: UIView = {
         let view = UIView()
-        view.backgroundColor = .white
+        view.backgroundColor = .systemBackground
         view.layer.cornerRadius = 16
         view.isUserInteractionEnabled = true
         return view
@@ -93,7 +86,7 @@ final class DoctorsDetailView: UIView {
     private let actionViewSystemImage: UIImageView = {
         let imageView = UIImageView()
         imageView.image = UIImage(systemName: "cross.case.fill")
-        imageView.tintColor = .black.withAlphaComponent(0.4)
+        imageView.tintColor = .secondaryLabel
         imageView.contentMode = .scaleToFill
         return imageView
     }()
@@ -102,14 +95,14 @@ final class DoctorsDetailView: UIView {
         let label = UILabel()
         label.text = "Консультация"
         label.font = .systemFont(ofSize: 16, weight: .semibold)
-        label.textColor = .black
+        label.textColor = .label
         return label
     }()
     
     private let priceLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 12, weight: .bold)
-        label.textColor = .black
+        label.textColor = .label
         return label
     }()
     
@@ -281,14 +274,12 @@ extension DoctorsDetailView {
         
         let fullURL = ImageURLHelper.makeImageURL(fileName: fileName)
         
-        Task {
-            if let image = await ImageCacheManager.shared.getImage(from: fullURL, fileName: fileName) {
-                await MainActor.run {
-                    avatarImage.image = image
-                }
-            } else {
-                await MainActor.run {
-                    avatarImage.image = UIImage(systemName: Constants.Images.placeholderPerson)
+        ImageCacheManager.shared.getImage(from: fullURL) { [weak self] image in
+            DispatchQueue.main.async {
+                if let image = image {
+                    self?.avatarImage.image = image
+                } else {
+                    self?.avatarImage.image = UIImage(systemName: Constants.Images.placeholderPerson)
                 }
             }
         }

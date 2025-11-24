@@ -5,7 +5,7 @@ final class ProfileViewController: UIViewController {
     private let profileView = ProfileView()
     
     private let settingsSections: [[String]] = [
-        ["Тема", "Privacy Policy", "Terms of Use"],
+        ["Privacy Policy", "Terms of Use"],
         ["Rate Us", "How to Use"]
     ]
     
@@ -20,13 +20,12 @@ final class ProfileViewController: UIViewController {
     }
     
     private func setupTableView() {
-        profileView.tableView.delegate = self
         profileView.tableView.dataSource = self
         profileView.tableView.register(UITableViewCell.self, forCellReuseIdentifier: "Cell")
     }
 }
 
-extension ProfileViewController: UITableViewDataSource, UITableViewDelegate {
+extension ProfileViewController: UITableViewDataSource {
     
     func numberOfSections(in tableView: UITableView) -> Int {
         return settingsSections.count
@@ -41,37 +40,10 @@ extension ProfileViewController: UITableViewDataSource, UITableViewDelegate {
         let item = settingsSections[indexPath.section][indexPath.row]
         
         cell.textLabel?.text = item
-        
-        if item == "Тема" {
-            cell.detailTextLabel?.text = nil
-            cell.accessoryType = .none
-            cell.selectionStyle = .none
-            
-            let themeSwitch = UISwitch()
-            themeSwitch.isOn = ThemeManager.shared.isDarkMode
-            themeSwitch.addTarget(self, action: #selector(themeSwitchChanged(_:)), for: .valueChanged)
-            cell.accessoryView = themeSwitch
-        } else {
-            cell.detailTextLabel?.text = nil
-            cell.accessoryType = .disclosureIndicator
-            cell.accessoryView = nil
-        }
+        cell.detailTextLabel?.text = nil
+        cell.accessoryType = .disclosureIndicator
+        cell.accessoryView = nil
         
         return cell
-    }
-    
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        tableView.deselectRow(at: indexPath, animated: true)
-        
-        let item = settingsSections[indexPath.section][indexPath.row]
-        
-        if item == "Тема" {
-            return
-        }
-    }
-    
-    @objc private func themeSwitchChanged(_ sender: UISwitch) {
-        let newTheme: AppTheme = sender.isOn ? .dark : .light
-        ThemeManager.shared.setTheme(newTheme)
     }
 }

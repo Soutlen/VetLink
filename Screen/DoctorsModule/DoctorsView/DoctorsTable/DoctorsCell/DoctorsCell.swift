@@ -15,7 +15,7 @@ final class DoctorsCell: UICollectionViewCell {
     private let nameLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 16, weight: .semibold)
-        label.textColor = .black.withAlphaComponent(0.4)
+        label.textColor = .secondaryLabel
         label.numberOfLines = 0
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -24,7 +24,7 @@ final class DoctorsCell: UICollectionViewCell {
     private let specialtyLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 14, weight: .regular)
-        label.textColor = .black.withAlphaComponent(0.4)
+        label.textColor = .secondaryLabel
         label.numberOfLines = 0
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -33,7 +33,7 @@ final class DoctorsCell: UICollectionViewCell {
     private let avatarImage: UIImageView = {
         let image = UIImageView()
         image.clipsToBounds = true
-        image.contentMode = .scaleAspectFill 
+        image.contentMode = .scaleAspectFill
         image.translatesAutoresizingMaskIntoConstraints = false
         return image
     }()
@@ -70,14 +70,12 @@ final class DoctorsCell: UICollectionViewCell {
         
         let fullURL = ImageURLHelper.makeImageURL(fileName: fileName)
         
-        Task {
-            if let image = await ImageCacheManager.shared.getImage(from: fullURL, fileName: fileName) {
-                await MainActor.run {
-                    avatarImage.image = image
-                }
-            } else {
-                await MainActor.run {
-                    avatarImage.image = UIImage(systemName: Constants.Images.placeholderPerson)
+        ImageCacheManager.shared.getImage(from: fullURL) { [weak self] image in
+            DispatchQueue.main.async {
+                if let image = image {
+                    self?.avatarImage.image = image
+                } else {
+                    self?.avatarImage.image = UIImage(systemName: Constants.Images.placeholderPerson)
                 }
             }
         }

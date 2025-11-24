@@ -1,4 +1,3 @@
-
 import UIKit
 
 enum Constants {
@@ -19,9 +18,6 @@ enum Constants {
     
     enum UI {
         static let cornerRadius: CGFloat = 16
-        static let cellImageHeight: CGFloat = 300
-        static let defaultSpacing: CGFloat = 16
-        static let smallSpacing: CGFloat = 12
     }
     
     enum Images {

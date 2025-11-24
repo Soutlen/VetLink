@@ -1,4 +1,3 @@
-
 import UIKit
 
 final class ImageCacheManager {
@@ -8,39 +7,33 @@ final class ImageCacheManager {
     private let urlSession: URLSession
     
     private init() {
-        let configuration = URLSessionConfiguration.default
-        configuration.requestCachePolicy = .reloadIgnoringLocalCacheData
-        configuration.urlCache = nil
-        urlSession = URLSession(configuration: configuration)
+        urlSession = URLSession.shared
     }
     
-    func getImage(from urlString: String, fileName: String) async -> UIImage? {
-        return await downloadImage(from: urlString)
+    func getImage(from urlString: String, completion: @escaping (UIImage?) -> Void) {
+        downloadImage(from: urlString, completion: completion)
     }
 
-    private func downloadImage(from urlString: String) async -> UIImage? {
-        
-        guard let url = URL(string: urlString) else { return nil }
-        
-        do {
-            let (data, response) = try await urlSession.data(from: url)
-            
-            if let httpResponse = response as? HTTPURLResponse {
-                guard (200...299).contains(httpResponse.statusCode) else {
-                    print("ImageCacheManager: HTTP ошибка \(httpResponse.statusCode) для URL: \(urlString)")
-                    return nil
-                }
-            }
-            
-            guard let image = UIImage(data: data) else {
-                print("ImageCacheManager: Не удалось создать UIImage из данных")
-                return nil
-            }
-            
-            return image
-        } catch {
-            print("ImageCacheManager: Ошибка загрузки - \(error.localizedDescription)")
-            return nil
+    private func downloadImage(from urlString: String, completion: @escaping (UIImage?) -> Void) {
+        guard let url = URL(string: urlString) else {
+            completion(nil)
+            return
         }
+        
+        urlSession.dataTask(with: url) { data, _, error in
+            if let error = error {
+                print("ImageCacheManager: Ошибка загрузки - \(error.localizedDescription)")
+                completion(nil)
+                return
+            }
+            
+            guard let data = data, let image = UIImage(data: data) else {
+                print("ImageCacheManager: Не удалось создать UIImage из данных")
+                completion(nil)
+                return
+            }
+            
+            completion(image)
+        }.resume()
     }
 }

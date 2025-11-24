@@ -5,21 +5,7 @@ final class TabBarController: UITabBarController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupTabBar()
-        
         delegate = self
-        
-        NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(themeDidChange),
-            name: ThemeManager.themeDidChangeNotification,
-            object: nil
-        )
-        
-        updateTabBarAppearance()
-    }
-    
-    deinit {
-        NotificationCenter.default.removeObserver(self)
     }
     
     private func setupTabBar() {
@@ -47,44 +33,9 @@ final class TabBarController: UITabBarController {
         viewControllers = [doctorViewController, appointmentViewController, profileViewController]
         
         tabBar.tintColor = .systemBlue
-        tabBar.unselectedItemTintColor = .gray
+        tabBar.unselectedItemTintColor = .systemGray
         
-        updateTabBarAppearance()
         restoreSelectedTab()
-    }
-    
-    private func updateTabBarAppearance() {
-        let isDarkMode = ThemeManager.shared.isDarkMode
-        
-        if #available(iOS 15.0, *) {
-            let appearance = UITabBarAppearance()
-            appearance.configureWithOpaqueBackground()
-            
-            if isDarkMode {
-                appearance.backgroundColor = .black
-            } else {
-                appearance.backgroundColor = .white
-            }
-            
-            appearance.stackedLayoutAppearance.normal.iconColor = .gray
-            appearance.stackedLayoutAppearance.normal.titleTextAttributes = [.foregroundColor: UIColor.gray]
-            
-            appearance.stackedLayoutAppearance.selected.iconColor = .systemBlue
-            appearance.stackedLayoutAppearance.selected.titleTextAttributes = [.foregroundColor: UIColor.systemBlue]
-            
-            tabBar.standardAppearance = appearance
-            tabBar.scrollEdgeAppearance = appearance
-        } else {
-            if isDarkMode {
-                tabBar.barTintColor = .black
-            } else {
-                tabBar.barTintColor = .white
-            }
-        }
-    }
-    
-    @objc private func themeDidChange() {
-        updateTabBarAppearance()
     }
     
     private func restoreSelectedTab() {

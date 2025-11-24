@@ -44,7 +44,7 @@ final class DoctorsView: UIView {
     override init(frame: CGRect) {
         super.init(frame: frame)
         setupView()
-        backgroundColor = .white
+        backgroundColor = .systemBackground
     }
     
     required init?(coder: NSCoder) {

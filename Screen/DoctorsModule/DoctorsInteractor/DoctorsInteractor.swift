@@ -1,5 +1,3 @@
-
-
 import Foundation
 
 protocol IDoctorsInteractorInput: AnyObject {
@@ -19,15 +17,13 @@ final class DoctorsInteractor {
 extension DoctorsInteractor: IDoctorsInteractorInput {
     
     func fetchDoctors() {
-        Task {
-            do {
-                let doctors = try await model.getAllDoctors()
-                await MainActor.run {
-                    output?.didFetchDoctros(doctors: doctors)
-                }
-            } catch {
-                await MainActor.run {
-                    output?.didFetchErrorDoctors(error: error)
+        model.getAllDoctors { [weak self] result in
+            DispatchQueue.main.async {
+                switch result {
+                case .success(let doctors):
+                    self?.output?.didFetchDoctros(doctors: doctors)
+                case .failure(let error):
+                    self?.output?.didFetchErrorDoctors(error: error)
                 }
             }
         }
